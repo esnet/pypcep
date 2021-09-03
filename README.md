@@ -1,10 +1,4 @@
-# %PROJECT%
+# pypcep
 
-Getting started:
-
-1. Use the following command to update the project name:
-
-    sed -i '' -e 's/%PROJECT%/Project Name/g' README.md LICENSE
-
-2. Remove these steps and add a meaningful description of the project in this
-   file.
+pypcep is a python protocol parser, event handler and utility framework for the PCEP (https://www.rfc-editor.org/rfc/rfc5440.html) protocol.
+Core development is still in progress.
