@@ -54,12 +54,14 @@ class ParsePCEPTestCase(unittest.TestCase):
         close_msg = parse_pcep(close_msg_bytes)
         self.assertEqual(1, close_msg.header.pcep_version)
         self.assertEqual(PCEPMessageType.CLOSE, PCEPMessageType(close_msg.header.pcep_type))
+        self.assertEqual(2, close_msg.pcep_objs[0].obj_fields['reason'])
 
     def test_parse_notification(self):
         notification_msg_bytes = self._test_bytes(PCEP_NOTIFICATION_MSG)
         notification_msg = parse_pcep(notification_msg_bytes)
         self.assertEqual(1, notification_msg.header.pcep_version)
         self.assertEqual(PCEPMessageType.NOTIFICATION, PCEPMessageType(notification_msg.header.pcep_type))
+        self.assertEqual(0, notification_msg.pcep_objs[0].obj_fields['reserved'])
 
     def test_parse_lsp_state_report(self):
         lsp_state_report_msg_bytes = self._test_bytes(PCEP_LSP_STATE_REPORT_MSG)
