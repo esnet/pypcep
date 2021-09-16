@@ -48,6 +48,15 @@ class ParsePCEPTestCase(unittest.TestCase):
         open_msg = parse_pcep(open_msg_bytes)
         self.assertEqual(1, open_msg.header.pcep_version)
         self.assertEqual(PCEPMessageType.OPEN, PCEPMessageType(open_msg.header.pcep_type))
+        objs = open_msg.pcep_objs
+        self.assertEqual(1, len(objs))
+        obj = objs[0]
+        self.assertEqual(1, obj.obj_fields['version'])
+        self.assertEqual(1, obj.obj_fields['sid'])
+        self.assertEqual(30, obj.obj_fields['keepalive'])
+        self.assertEqual(120, obj.obj_fields['deadtime'])
+        tlvs = obj.obj_fields['tlvs']
+        self.assertEqual(7, len(tlvs))
 
     def test_parse_close(self):
         close_msg_bytes = self._test_bytes(PCEP_CLOSE_MSG)

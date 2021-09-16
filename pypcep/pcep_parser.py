@@ -34,7 +34,7 @@ PCEP_OBJECT_FIELDS = {
         'version': lambda obj_bytes: ((obj_bytes[4] & 0xe0) >> 5),
         'flags': lambda obj_bytes: (obj_bytes[4] & 0x1f),
         'keepalive': lambda obj_bytes: obj_bytes[5],
-        'deadtimer': lambda obj_bytes: obj_bytes[6],
+        'deadtime': lambda obj_bytes: obj_bytes[6],
         'sid': lambda obj_bytes: obj_bytes[7],
         'tlvs': lambda obj_bytes: parse_tlvs(obj_bytes[8:]),
     },
