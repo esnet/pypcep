@@ -16,6 +16,10 @@ PCEP_OPEN_MSG = [
     '0x00', '0x72', '0x00', '0x04', '0x00', '0x00', '0x00', '0x02',
     '0x00', '0x67', '0x00', '0x02', '0x00', '0x00', '0x00', '0x00']
 
+PCEP_CLOSE_MSG = [
+    '0x20', '0x07', '0x00', '0x0c', '0x0f', '0x10', '0x00', '0x08',
+    '0x00', '0x00', '0x00', '0x02']
+
 PCEP_KEEPALIVE_MSG = [
     '0x20', '0x02', '0x00', '0x04']
 
@@ -44,6 +48,12 @@ class ParsePCEPTestCase(unittest.TestCase):
         open_msg = parse_pcep(open_msg_bytes)
         self.assertEqual(1, open_msg.header.pcep_version)
         self.assertEqual(PCEPMessageType.OPEN, PCEPMessageType(open_msg.header.pcep_type))
+
+    def test_parse_close(self):
+        close_msg_bytes = self._test_bytes(PCEP_CLOSE_MSG)
+        close_msg = parse_pcep(close_msg_bytes)
+        self.assertEqual(1, close_msg.header.pcep_version)
+        self.assertEqual(PCEPMessageType.CLOSE, PCEPMessageType(close_msg.header.pcep_type))
 
     def test_parse_notification(self):
         notification_msg_bytes = self._test_bytes(PCEP_NOTIFICATION_MSG)

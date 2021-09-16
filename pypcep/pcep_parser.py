@@ -20,6 +20,7 @@ class PCEPMessageType(Enum):
 
 PCEP_OBJECT_FIELDS = {
     # https://www.rfc-editor.org/rfc/rfc5440.html#section-7.3
+    # indexed on class, type
     (1, 1): {
         'version': lambda obj_bytes: ((obj_bytes[4] & 0xe0) >> 5),
         'flags': lambda obj_bytes: (obj_bytes[4] & 0x1f),
