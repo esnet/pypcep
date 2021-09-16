@@ -15,6 +15,7 @@ class PCEPMessageType(Enum):
     NOTIFICATION = 5
     ERROR = 6
     CLOSE = 7
+    LSP_STATE_REPORT = 10
 
 
 PCEP_OBJECT_FIELDS = {

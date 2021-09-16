@@ -23,6 +23,10 @@ PCEP_NOTIFICATION_MSG = [
     '0x20', '0x05', '0x00', '0x0c', '0x0c', '0x10', '0x00', '0x08',
     '0x00', '0x00', '0x02', '0x01']
 
+PCEP_LSP_STATE_REPORT_MSG = [
+    '0x20', '0x0a', '0x00', '0x10', '0x20', '0x12', '0x00', '0x08',
+    '0x00', '0x00', '0x00', '0x00', '0x07', '0x10', '0x00', '0x04']
+
 
 class ParsePCEPTestCase(unittest.TestCase):
 
@@ -47,3 +51,8 @@ class ParsePCEPTestCase(unittest.TestCase):
         self.assertEqual(1, notification_msg.header.pcep_version)
         self.assertEqual(PCEPMessageType.NOTIFICATION, PCEPMessageType(notification_msg.header.pcep_type))
 
+    def test_parse_lsp_state_report(self):
+        lsp_state_report_msg_bytes = self._test_bytes(PCEP_LSP_STATE_REPORT_MSG)
+        lsp_state_report_msg = parse_pcep(lsp_state_report_msg_bytes)
+        self.assertEqual(1, lsp_state_report_msg.header.pcep_version)
+        self.assertEqual(PCEPMessageType.LSP_STATE_REPORT, PCEPMessageType(lsp_state_report_msg.header.pcep_type))
