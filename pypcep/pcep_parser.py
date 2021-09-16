@@ -15,17 +15,41 @@ class PCEPMessageType(Enum):
     NOTIFICATION = 5
     ERROR = 6
     CLOSE = 7
+    LSP_STATE_REPORT = 10
+
+
+class PCEPObjectClass(Enum):
+    """PCEP Object Class."""
+
+    OPEN = 1
+    EXPLICIT_ROUTE = 7
+    NOTIFICATION = 12
+    CLOSE = 15
 
 
 PCEP_OBJECT_FIELDS = {
     # https://www.rfc-editor.org/rfc/rfc5440.html#section-7.3
-    (1, 1): {
+    # indexed on class, type
+    (PCEPObjectClass.OPEN.value, 1): {
         'version': lambda obj_bytes: ((obj_bytes[4] & 0xe0) >> 5),
         'flags': lambda obj_bytes: (obj_bytes[4] & 0x1f),
         'keepalive': lambda obj_bytes: obj_bytes[5],
         'deadtimer': lambda obj_bytes: obj_bytes[6],
         'sid': lambda obj_bytes: obj_bytes[7],
         'tlvs': lambda obj_bytes: parse_tlvs(obj_bytes[8:]),
+    },
+    (PCEPObjectClass.CLOSE.value, 1): {
+        'reserved': lambda obj_bytes: obj_bytes[4:6],
+        'flags': lambda obj_bytes: obj_bytes[6],
+        'reason': lambda obj_bytes: obj_bytes[7],
+    },
+    (PCEPObjectClass.EXPLICIT_ROUTE.value, 1): {
+    },
+    (PCEPObjectClass.NOTIFICATION.value, 1): {
+         'reserved': lambda obj_bytes: obj_bytes[4],
+         'flags': lambda obj_bytes: obj_bytes[5],
+         'value': lambda obj_bytes: obj_bytes[6],
+         'type': lambda obj_bytes: obj_bytes[7],
     }
 }
 

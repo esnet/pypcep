@@ -16,11 +16,55 @@ PCEP_OPEN_MSG = [
     '0x00', '0x72', '0x00', '0x04', '0x00', '0x00', '0x00', '0x02',
     '0x00', '0x67', '0x00', '0x02', '0x00', '0x00', '0x00', '0x00']
 
+PCEP_CLOSE_MSG = [
+    '0x20', '0x07', '0x00', '0x0c', '0x0f', '0x10', '0x00', '0x08',
+    '0x00', '0x00', '0x00', '0x02']
+
+PCEP_KEEPALIVE_MSG = [
+    '0x20', '0x02', '0x00', '0x04']
+
+PCEP_NOTIFICATION_MSG = [
+    '0x20', '0x05', '0x00', '0x0c', '0x0c', '0x10', '0x00', '0x08',
+    '0x00', '0x00', '0x02', '0x01']
+
+PCEP_LSP_STATE_REPORT_MSG = [
+    '0x20', '0x0a', '0x00', '0x10', '0x20', '0x12', '0x00', '0x08',
+    '0x00', '0x00', '0x00', '0x00', '0x07', '0x10', '0x00', '0x04']
+
 
 class ParsePCEPTestCase(unittest.TestCase):
 
+    def _test_bytes(self, msg):
+        return bytes([int(i, 16) for i in msg])
+
+    def test_parse_keepalive(self):
+        keepalive_msg_bytes = self._test_bytes(PCEP_KEEPALIVE_MSG)
+        keepalive_msg = parse_pcep(keepalive_msg_bytes)
+        self.assertEqual(1, keepalive_msg.header.pcep_version)
+        self.assertEqual(PCEPMessageType.KEEPALIVE, PCEPMessageType(keepalive_msg.header.pcep_type))
+
     def test_parse_open(self):
-        open_msg_bytes = bytes([int(i, 16) for i in PCEP_OPEN_MSG])
+        open_msg_bytes = self._test_bytes(PCEP_OPEN_MSG)
         open_msg = parse_pcep(open_msg_bytes)
         self.assertEqual(1, open_msg.header.pcep_version)
         self.assertEqual(PCEPMessageType.OPEN, PCEPMessageType(open_msg.header.pcep_type))
+
+    def test_parse_close(self):
+        close_msg_bytes = self._test_bytes(PCEP_CLOSE_MSG)
+        close_msg = parse_pcep(close_msg_bytes)
+        self.assertEqual(1, close_msg.header.pcep_version)
+        self.assertEqual(PCEPMessageType.CLOSE, PCEPMessageType(close_msg.header.pcep_type))
+        self.assertEqual(2, close_msg.pcep_objs[0].obj_fields['reason'])
+
+    def test_parse_notification(self):
+        notification_msg_bytes = self._test_bytes(PCEP_NOTIFICATION_MSG)
+        notification_msg = parse_pcep(notification_msg_bytes)
+        self.assertEqual(1, notification_msg.header.pcep_version)
+        self.assertEqual(PCEPMessageType.NOTIFICATION, PCEPMessageType(notification_msg.header.pcep_type))
+        self.assertEqual(0, notification_msg.pcep_objs[0].obj_fields['reserved'])
+
+    def test_parse_lsp_state_report(self):
+        lsp_state_report_msg_bytes = self._test_bytes(PCEP_LSP_STATE_REPORT_MSG)
+        lsp_state_report_msg = parse_pcep(lsp_state_report_msg_bytes)
+        self.assertEqual(1, lsp_state_report_msg.header.pcep_version)
+        self.assertEqual(PCEPMessageType.LSP_STATE_REPORT, PCEPMessageType(lsp_state_report_msg.header.pcep_type))
