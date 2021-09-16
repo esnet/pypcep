@@ -16,11 +16,23 @@ PCEP_OPEN_MSG = [
     '0x00', '0x72', '0x00', '0x04', '0x00', '0x00', '0x00', '0x02',
     '0x00', '0x67', '0x00', '0x02', '0x00', '0x00', '0x00', '0x00']
 
+PCEP_KEEPALIVE_MSG = [
+    '0x20', '0x02', '0x00', '0x04']
+
 
 class ParsePCEPTestCase(unittest.TestCase):
 
+    def _test_bytes(self, msg):
+        return bytes([int(i, 16) for i in msg])
+
+    def test_parse_keepalive(self):
+        keepalive_msg_bytes = self._test_bytes(PCEP_KEEPALIVE_MSG)
+        keepalive_msg = parse_pcep(keepalive_msg_bytes)
+        self.assertEqual(1, keepalive_msg.header.pcep_version)
+        self.assertEqual(PCEPMessageType.KEEPALIVE, PCEPMessageType(keepalive_msg.header.pcep_type))
+
     def test_parse_open(self):
-        open_msg_bytes = bytes([int(i, 16) for i in PCEP_OPEN_MSG])
+        open_msg_bytes = self._test_bytes(PCEP_OPEN_MSG)
         open_msg = parse_pcep(open_msg_bytes)
         self.assertEqual(1, open_msg.header.pcep_version)
         self.assertEqual(PCEPMessageType.OPEN, PCEPMessageType(open_msg.header.pcep_type))
