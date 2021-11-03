@@ -34,7 +34,7 @@ PCEP_OBJECT_FIELDS = {
         'version': lambda obj_bytes: ((obj_bytes[4] & 0xe0) >> 5),
         'flags': lambda obj_bytes: (obj_bytes[4] & 0x1f),
         'keepalive': lambda obj_bytes: obj_bytes[5],
-        'deadtimer': lambda obj_bytes: obj_bytes[6],
+        'deadtime': lambda obj_bytes: obj_bytes[6],
         'sid': lambda obj_bytes: obj_bytes[7],
         'tlvs': lambda obj_bytes: parse_tlvs(obj_bytes[8:]),
     },
@@ -65,8 +65,7 @@ class PCEPMessage:
         self.pcep_objs = pcep_objs
 
     def __str__(self):
-        return 'PCEP Message header %s, objects: %s' % (
-            self.header, self.pcep_objs)
+        return f'PCEP Message header {self.header}, objects: {self.pcep_objs}'
 
     def __repr__(self):
         return self.__str__()
@@ -80,8 +79,7 @@ class PCEPHeader:
         self.pcep_type = pcep_type
 
     def __str__(self):
-        return 'PCEP Header version: %u, flags: %s, type: %s' % (
-            self.pcep_version, self.pcep_flags, PCEPMessageType(self.pcep_type))
+        return f'PCEP Header version: {self.pcep_version}, flags: {self.pcep_flags}, type: {PCEPMessageType(self.pcep_type)}'
 
     def __repr__(self):
         return self.__str__()
@@ -95,8 +93,7 @@ class PCEPObj:
         self.obj_fields = obj_fields
 
     def __str__(self):
-        return 'PCEP object class: %u, type: %u, fields: %s' % (
-            self.obj_class, self.obj_type, self.obj_fields)
+        return f'PCEP object class: {self.obj_class}, type: {self.obj_type}, fields: {self.obj_fields}'
 
     def __repr__(self):
         return self.__str__()
@@ -109,8 +106,7 @@ class PCEPTLV:
         self.tlv_payload = tlv_payload
 
     def __str__(self):
-        return 'PCEP TLV type: %u payload: %s' % (
-            self.tlv_type, self.tlv_payload)
+        return f'PCEP TLV type: {self.tlv_type} payload: {self.tlv_payload}'
 
     def __repr__(self):
         return self.__str__()
@@ -122,8 +118,7 @@ def parse_header(header_bytes):
     pcep_flags, pcep_type, _pcep_len = struct.unpack('!bbH', header_bytes)
     pcep_version = pcep_flags >> 5
     if pcep_version != 1:
-        raise PCEPParserException(
-            'Unsupported PCEP version: %u' % pcep_version)
+        raise PCEPParserException(f'Unsupported PCEP version: {pcep_version}')
     return PCEPHeader(pcep_version, pcep_flags, pcep_type)
 
 
