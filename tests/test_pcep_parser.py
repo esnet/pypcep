@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 import unittest
-from pypcep.pcep_parser import parse_pcep, PCEPMessageType
+from pypcep.pcep_parser import parse_pcep, parse_tlvs, PCEPTLV, PCEPMessageType
 
 
 PCEP_OPEN_MSG = [
@@ -37,9 +37,20 @@ class ParsePCEPTestCase(unittest.TestCase):
     def _test_bytes(self, msg):
         return bytes([int(i, 16) for i in msg])
 
+    def test_parse_tlv(self):
+        test_tlv = PCEPTLV(123, 'abcd'.encode('utf-8'))
+        serialized_tlv = test_tlv.serialized()
+        parsed_tlvs = parse_tlvs(serialized_tlv)
+        self.assertEqual(1, len(parsed_tlvs))
+        parsed_test_tlv = parsed_tlvs[0]
+        self.assertEqual(serialized_tlv, parsed_test_tlv.serialized())
+
     def test_parse_keepalive(self):
         keepalive_msg_bytes = self._test_bytes(PCEP_KEEPALIVE_MSG)
         keepalive_msg = parse_pcep(keepalive_msg_bytes)
+        parsed_header = keepalive_msg.header
+        serialized_header = parsed_header.serialized()
+        self.assertEqual(serialized_header, keepalive_msg_bytes[:len(serialized_header)])
         self.assertEqual(1, keepalive_msg.header.pcep_version)
         self.assertEqual(PCEPMessageType.KEEPALIVE, PCEPMessageType(keepalive_msg.header.pcep_type))
 

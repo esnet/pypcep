@@ -73,16 +73,21 @@ class PCEPMessage:
 
 class PCEPHeader:
 
-    def __init__(self, pcep_version, pcep_flags, pcep_type):
+    def __init__(self, pcep_version, pcep_flags, pcep_type, pcep_len):
         self.pcep_version = pcep_version
         self.pcep_flags = pcep_flags
         self.pcep_type = pcep_type
+        self.pcep_len = pcep_len
 
     def __str__(self):
-        return f'PCEP Header version: {self.pcep_version}, flags: {self.pcep_flags}, type: {PCEPMessageType(self.pcep_type)}'
+        return f'PCEP Header version: {self.pcep_version}, flags: {self.pcep_flags}, type: {PCEPMessageType(self.pcep_type)}, len: {self.pcep_len}'
 
     def __repr__(self):
         return self.__str__()
+
+    def serialized(self):
+        pcep_version_flags = ((self.pcep_version & 0x7) << 5) | (self.pcep_flags & 0x31)
+        return struct.pack('!BBH', pcep_version_flags, self.pcep_type, self.pcep_len)
 
 
 class PCEPObj:
@@ -111,15 +116,19 @@ class PCEPTLV:
     def __repr__(self):
         return self.__str__()
 
+    def serialized(self):
+        return struct.pack('!HH', self.tlv_type, len(self.tlv_payload)) + self.tlv_payload
+
 
 def parse_header(header_bytes):
     """Parse PCEP header."""
     # https://www.rfc-editor.org/rfc/rfc5440.html#section-6.1
-    pcep_flags, pcep_type, _pcep_len = struct.unpack('!bbH', header_bytes)
+    pcep_flags, pcep_type, pcep_len = struct.unpack('!BBH', header_bytes)
     pcep_version = pcep_flags >> 5
+    pcep_flags &= 0x1f
     if pcep_version != 1:
         raise PCEPParserException(f'Unsupported PCEP version: {pcep_version}')
-    return PCEPHeader(pcep_version, pcep_flags, pcep_type)
+    return PCEPHeader(pcep_version, pcep_flags, pcep_type, pcep_len)
 
 
 def parse_tlvs(tlv_bytes):
@@ -135,7 +144,7 @@ def parse_tlvs(tlv_bytes):
 
 
 def parse_object(p, obj_bytes):
-    obj_class, obj_flags, obj_len = struct.unpack('!bbH', obj_bytes[p:p+4])
+    obj_class, obj_flags, obj_len = struct.unpack('!BBH', obj_bytes[p:p+4])
     obj_type = (obj_flags & 0xf0) >> 4
     if p + obj_len > len(obj_bytes):
         raise PCEPParserException('Invalid object length')
